@@ -1,0 +1,5 @@
+let
+    mod = fun x -> fun y -> x + y
+in
+    ((mod 5) 4)
+end

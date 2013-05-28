@@ -1,0 +1,11 @@
+let
+    x = 1
+in
+    let
+        y = 2
+    in
+        ()
+    end;
+    x+y
+end
+$

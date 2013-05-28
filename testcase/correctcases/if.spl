@@ -1,0 +1,19 @@
+let y = nil
+in
+	let
+		x = 5 
+	in
+		if x > 0
+		then
+			x := x - 1;
+			y := x ::y;
+			head y
+		else
+			x := x + 1;
+			y := x ::y;
+			head y
+		end
+	end
+end
+$
+

@@ -1,0 +1,301 @@
+/**
+ * JavaCC file
+ */
+ 
+options {
+  //JDK_VERSION = "1.5";
+  LOOKAHEAD = 1 ;
+  NODE_FACTORY = true;
+  STATIC = false;
+  MULTI = true;
+  VISITOR = true;
+  NODE_USES_PARSER = true;
+}
+PARSER_BEGIN(SimPLParser)
+package javacc;
+
+import java.util.ArrayList;
+import semantics.SimPLTypes;
+
+public class SimPLParser {
+
+
+}
+PARSER_END(SimPLParser)
+
+
+/*
+ * SimPL Syntax
+ */
+SKIP :
+{
+  <SINGLE_LINE_COMMENT: "//" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
+| <MULTI_LINE_COMMENT: "/*" (~["*"])* "*" ("*" | (~["*","/"] (~["*"])* "*"))* "/">
+|    " "
+|   "\r"
+|   "\t"
+|   "\n"
+}
+
+
+TOKEN : /* OPERATORS AND PUNCTUATION CHARACTERS */
+{
+    < PLUS: "+" >
+|   < MINUS: "-" >
+|   < MULTIPLY: "*" >
+|   < DIVIDE: "/" >
+|   < NEGATIVE: "~" >
+|   < EQUAL: "=" >
+|   < LESSTHAN: "<" >
+|   < BIGGERTHAN: ">" >
+|   < ARROW: "->" >
+|   < JOIN: "::" >
+|   < ASSIGN: ":=" >
+|   < SEMICOLON: ";" >
+|   < LPAREN: "(" >
+|   < RPAREN: ")" >
+|   < COMMA: "," >
+}
+
+TOKEN : /* RESERVED WORDS */
+{
+    < LET: "let" >
+|   < IN:  "in" >
+|   < END: "end" >
+|   < IF: "if" >
+|   < THEN: "then" >
+|   < ELSE: "else" >
+|   < WHILE: "while" >
+|   < DO: "do" >
+|   < FIRST: "fst" >
+|   < SECOND: "snd" >
+|   < HEAD: "head" >
+|   < TAIL: "tail" >
+|   < NIL: "nil" >
+|   < INT: "int" >
+|   < BOOL: "bool" >
+|   < AND: "and" >
+|   < OR: "or" >
+|   < NOT: "not" >
+|   < FUN: "fun" >
+|   < TRUE: "true" >
+|   < FALSE: "false" >
+|   < LIST: "list" >
+|   < UNIT: "unit" >
+}
+
+
+TOKEN : /* LITERALS */
+{
+
+    < INTEGER: (<DIGIT>)+ >
+|   < #DIGIT: ["0" - "9"] >
+|   < IDENTIFIER: <LETTER> ( <DIGIT> | <LETTER> )* >
+|   < #LETTER: ["a" - "z"] >
+|   < NOP: <LPAREN> <RPAREN> >
+}
+
+/*
+ * SimPL Grammar
+ */
+
+// Program structuring syntax follows
+
+SimpleNode Start() :
+{}
+{
+	Expression()
+    { return jjtThis; }
+}
+
+// Expression syntax follows
+void Expression() :
+{}
+{
+	SequenceExpression() 
+}
+
+void Variable() :
+{
+	Token identifier;
+}
+{
+    identifier=<IDENTIFIER>
+    { jjtThis.setName(identifier.image); }
+}
+
+
+void Value() :
+{
+	Token val;
+}
+{
+    (
+    val = <INTEGER>
+    {
+    	jjtThis.setIntValue(Integer.parseInt(val.image));
+    	jjtThis.setType(SimPLTypes.TYPE_INTEGER);
+    }
+|   <TRUE>
+    {
+    	jjtThis.setBoolValue(true);
+    	jjtThis.setType(SimPLTypes.TYPE_BOOLEAN);
+    }
+|   <FALSE>
+	{
+		jjtThis.setBoolValue(false);
+		jjtThis.setType(SimPLTypes.TYPE_BOOLEAN);
+	}
+|   <NIL>
+	{
+		jjtThis.setListValue(new ArrayList<Object>());
+		jjtThis.setType(SimPLTypes.TYPE_LIST);
+	}
+|   <NOP>
+    {
+    	jjtThis.setType(SimPLTypes.TYPE_UNIT);
+    }
+|   (<FUN> Variable() <ARROW> Expression()) #AnonymousFunctionNode
+    {
+    	jjtThis.setType(SimPLTypes.TYPE_FUNCTION);
+    }) 
+}
+
+void CommonLeftBracketExpression() :{
+	
+}{	<LPAREN> Expression() ( 	    ApplicationExpression()	|   BracketExpression()	|   PairExpression()	)	}
+// e := (e1, e2)
+void PairExpression() :
+{}
+{
+    <COMMA> Expression() <RPAREN>
+}
+
+// e := (e1 e2)
+void ApplicationExpression() :
+{}
+{
+     Expression() <RPAREN>
+}
+
+
+// e := (e)
+void BracketExpression() :
+{}
+{
+     <RPAREN>
+}
+
+// e := let x = e1 in e2 end
+void LetExpression() :
+{}
+{
+    <LET> Variable() <EQUAL> Expression() <IN> Expression() <END>
+}
+
+// e := if e1 then e2 else e3 end
+void IfThenElseExpression() :
+{}
+{
+    <IF> Expression() <THEN> Expression() <ELSE> Expression() <END>
+}
+
+// e := e1;e2
+void SequenceExpression() :{}{    AssignExpression() 
+    (<SEMICOLON> AssignExpression()
+    )*}
+
+// e := e1 := e2
+void AssignExpression() #void:
+{}
+{
+    JoinExpression()
+    (<ASSIGN> JoinExpression() #AssignNode(2)
+    )*
+}
+
+void JoinExpression() #void:
+{}
+{
+	ConditionalExpression()
+	( <JOIN> ConditionalExpression() #JoinNode(2)
+	)*
+}
+
+void ConditionalExpression() #void:
+{}
+{
+	EqualityExpression()
+	( 
+	    <AND> EqualityExpression() #ConditionalAndNode(2)
+	|   <OR>  EqualityExpression() #ConditionalOrNode(2)
+	)*
+}
+
+void EqualityExpression() #void:
+{}
+{
+	AdditiveExpression()
+	(
+	    <EQUAL> AdditiveExpression() #EqualityEqualNode(2)
+	|   <BIGGERTHAN> AdditiveExpression() #EqualityBiggerThanNode(2)
+	|   <LESSTHAN> AdditiveExpression() #EqualityLessThanNode(2)
+	)*
+}
+
+void AdditiveExpression() #void:
+{}
+{
+	MultiplicativeExpression()
+	(
+	    <PLUS> MultiplicativeExpression() #AdditivePlusNode(2)
+	|   <MINUS> MultiplicativeExpression() #AdditiveMinusNode(2)
+	)*     
+}
+
+void MultiplicativeExpression() #void:
+{}
+{
+	UnaryExpression()
+	(
+	    <MULTIPLY> UnaryExpression() #MultiplicativeMultiplyNode(2)
+	|   <DIVIDE> UnaryExpression() #MultiplicativeDivideNode(2)
+	)*
+}
+
+void UnaryExpression() #void:
+{}
+{
+	<NOT> UnaryExpression() #UnaryNotNode
+|	<NEGATIVE> UnaryExpression() #UnaryNegativeNode
+|   SetExpression()
+}
+
+
+void SetExpression() #void:
+{}
+{
+	<HEAD> SetExpression() #HeadOfListExpression
+|   <TAIL> SetExpression() #TailOfListExpression
+|   <FIRST> SetExpression() #FirstOfPairExpression
+|   <SECOND> SetExpression() #SecondOfPairExpression
+|   Variable()
+|   Value()
+|   CommonLeftBracketExpression()
+|   LetExpression()
+|   IfThenElseExpression()
+|   WhileLoopExpression()
+}
+// e := while e1 do e2 end
+void WhileLoopExpression() :
+{}
+{
+    <WHILE> Expression() <DO> Expression() <END>
+}
+
+//// e := fst e//void FirstOfPairExpression() ://{}//{//    <FIRST> Expression()//}////// e := snd e//void SecondOfPairExpression() ://{}//{//    <SECOND> Expression() //}////// e := head e//void HeadOfListExpression() ://{}//{//    <HEAD> Expression()//}////// e := tail e//void TailOfListExpression() ://{}//{//    <TAIL> Expression()//}
+
+
+
+
+
