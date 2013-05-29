@@ -273,7 +273,7 @@ public class InterpretVisitor implements SimPLParserVisitor {
 			} else if (firstNode instanceof ASTValue) {
 				firstValue = ((ASTValue) firstNode).deepCopy();
 			} else if (firstNode instanceof ASTAnonymousFunctionNode) {
-				firstValue = (ASTAnonymousFunctionNode) firstNode;
+				firstValue = ((ASTAnonymousFunctionNode) firstNode).deepCopy();
 			} else {
 				throw new TypeException("Error value type for pair expression");
 			}
@@ -297,7 +297,7 @@ public class InterpretVisitor implements SimPLParserVisitor {
 			} else if (secondNode instanceof ASTValue) {
 				secondValue = ((ASTValue) secondNode).deepCopy();
 			} else if (secondNode instanceof ASTAnonymousFunctionNode) {
-				secondValue = (ASTAnonymousFunctionNode) secondNode;
+				secondValue = ((ASTAnonymousFunctionNode) secondNode).deepCopy();
 			} else {
 				throw new TypeException("Error value type for pair expression");
 			}
@@ -375,11 +375,11 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		
 		
 		// get return value
-		SimpleNode returnValue = executeStack.peek();
+		SimpleNode returnValue = executeStack.pop();
 
 		// if it's a variable, change it to a value
 		if (returnValue instanceof ASTVariable) {
-			executeStack.pop();
+
 			if(envStack.containsKey(((ASTVariable) returnValue).getName()))
 			{
 				returnValue = (ASTValue) envStack
@@ -391,7 +391,6 @@ public class InterpretVisitor implements SimPLParserVisitor {
 				    + ((ASTVariable) returnValue).getName()+ ".");
 			}
 						
-			executeStack.push(returnValue);
 		}
 		
 		
@@ -400,9 +399,11 @@ public class InterpretVisitor implements SimPLParserVisitor {
 
 		// check result type
 		if (returnValue instanceof ASTValue) {
+			executeStack.push(((ASTValue)returnValue).deepCopy());
 			return ((ASTValue) returnValue).getType();
 		} 
 		else if (returnValue instanceof ASTAnonymousFunctionNode) {
+			executeStack.push(((ASTAnonymousFunctionNode)returnValue).deepCopy());
 			return SimPLTypes.TYPE_FUNCTION;
 		} else {
 			throw new TypeException("Error return type in let expression.");
@@ -487,7 +488,7 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		} else if (firstNode instanceof ASTValue) {
 			firstValue = ((ASTValue)firstNode).deepCopy();
 		} else if (firstNode instanceof ASTAnonymousFunctionNode){
-			firstValue = firstNode;
+			firstValue = ((ASTAnonymousFunctionNode)firstNode).deepCopy();
 		}
 		else {
 			throw new TypeException("Error value type for list expression");
@@ -511,7 +512,7 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		} else if (secondNode instanceof ASTValue) {
 			secondValue = ((ASTValue)secondNode).deepCopy();
 		} else if (secondNode instanceof ASTAnonymousFunctionNode) {
-			secondValue = secondNode;
+			secondValue = ((ASTAnonymousFunctionNode)secondNode).deepCopy();
 		}else {
 		
 			throw new TypeException("Error value type for list expression.");
@@ -1313,13 +1314,15 @@ public class InterpretVisitor implements SimPLParserVisitor {
 
 		SimpleNode firstValue =  (SimpleNode)snValue.getPairValue().get(0);
 
-		executeStack.push(firstValue);
+		
 		
 		if(firstValue instanceof ASTValue)
 		{
+			executeStack.push(((ASTValue) firstValue).deepCopy());
 			return ((ASTValue) firstValue).getType();
 		}else if(firstValue instanceof ASTAnonymousFunctionNode)
 		{
+			executeStack.push(((ASTAnonymousFunctionNode) firstValue).deepCopy());
 			return SimPLTypes.TYPE_FUNCTION;
 		}else{
 			throw new TypeException("Invalid pair value.");
@@ -1358,13 +1361,13 @@ public class InterpretVisitor implements SimPLParserVisitor {
 
 		SimpleNode secondValue =  (SimpleNode)snValue.getPairValue().get(1);
 
-		executeStack.push(secondValue);
-		
 		if(secondValue instanceof ASTValue)
 		{
+			executeStack.push(((ASTValue) secondValue).deepCopy());
 			return ((ASTValue) secondValue).getType();
 		}else if(secondValue instanceof ASTAnonymousFunctionNode)
 		{
+			executeStack.push(((ASTAnonymousFunctionNode) secondValue).deepCopy());
 			return SimPLTypes.TYPE_FUNCTION;
 		}else{
 			throw new TypeException("Invalid pair value.");
@@ -1411,15 +1414,18 @@ public class InterpretVisitor implements SimPLParserVisitor {
 			((ASTValue)value).setListValue(snValue.getListValue());
 		}
 
-		executeStack.push(value);
 		
 		
 		if(value instanceof ASTValue)
 		{
+
+			executeStack.push(((ASTValue) value).deepCopy());
 			return ((ASTValue)value).getType();
 		}
 		else
 		{
+
+			executeStack.push(((ASTAnonymousFunctionNode)value).deepCopy());
 			return SimPLTypes.TYPE_FUNCTION;
 		}
 	}
@@ -1453,17 +1459,6 @@ public class InterpretVisitor implements SimPLParserVisitor {
 			throw new TypeException("Tail-expression requires list type.");
 		}
 
-//		List<Object> listValue = snValue.getListValue();
-		
-//		List<Object> subValue = new LinkedList<Object>();
-//		for(int i = 1; i < listValue.size(); ++i)
-//		{
-//			subValue.add(listValue.get(i));
-//		}
-		
-//		ASTValue newListValue = new ASTValue(0);
-//		newListValue.setType(SimPLTypes.TYPE_LIST);
-//		newListValue.setListValue(subValue);
 		ASTValue newListValue = snValue.deepCopy();
 		newListValue.getListValue().remove(0);
 		executeStack.push(newListValue);
@@ -1502,7 +1497,7 @@ public class InterpretVisitor implements SimPLParserVisitor {
 				throw new TypeException("Type incompatible in assign expression.");
 			}
 
-			envStack.put(var.getName(), sn);
+			envStack.put(var.getName(), ((ASTValue) sn).deepCopy());
 		} else if (sn instanceof ASTVariable) {
 			ASTVariable definedVar = (ASTVariable) sn;
 
@@ -1510,11 +1505,20 @@ public class InterpretVisitor implements SimPLParserVisitor {
 				throw new InterpretException("Undefined identifier " 
 					    + definedVar.getName() + ".");
 			}
+			
+			if(envStack.get(definedVar.getName()) instanceof ASTValue)
+			{
+				envStack.put(var.getName(), ((ASTValue)envStack.get(definedVar.getName())).deepCopy());
+			}
+			else
+			{
+				envStack.put(var.getName(), ((ASTAnonymousFunctionNode)envStack.get(definedVar.getName())).deepCopy());
+			}
 
-			envStack.put(var.getName(), envStack.get(definedVar.getName()));
+			
 		} else if (sn instanceof ASTAnonymousFunctionNode) {
 
-			envStack.put(var.getName(), sn);
+			envStack.put(var.getName(), ((ASTAnonymousFunctionNode) sn).deepCopy());
 		} else {
 			throw new TypeException("Invalid expression type" +
 					" of right side in assign-expression.");

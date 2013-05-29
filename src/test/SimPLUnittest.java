@@ -160,6 +160,7 @@ public class SimPLUnittest {
 		testSet.put("testcase/correctcases/let.spl", null);
 		testSet.put("testcase/correctcases/let3.spl", new Integer(15));
 		testSet.put("testcase/correctcases/length.spl", new Integer(3));
+		testSet.put("testcase/correctcases/fun_fun.spl", new Integer(211));
 		List<Integer> takeList = new LinkedList<Integer>();
 		takeList.add(234);
 		takeList.add(352);
