@@ -1460,7 +1460,8 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		}
 
 		ASTValue newListValue = snValue.deepCopy();
-		newListValue.getListValue().remove(0);
+		if(newListValue.getListValue().size() > 0)
+			newListValue.getListValue().remove(0);
 		executeStack.push(newListValue);
 
 		return SimPLTypes.TYPE_LIST;

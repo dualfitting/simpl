@@ -66,7 +66,7 @@ public class ASTValue extends SimpleNode {
 		}
 		else
 		{
-			return v;
+			return ((ASTAnonymousFunctionNode)v).deepCopy();
 		}
 	}
 	
