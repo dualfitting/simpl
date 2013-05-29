@@ -3,6 +3,8 @@
 package javacc;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 import utils.InterpretException;
 import utils.TypeException;
@@ -78,5 +80,36 @@ public class ASTAnonymousFunctionNode extends SimpleNode {
 
 		return this.jjtGetChild(1).equals(otherNode.jjtGetChild(1))
 				&& this.getIdentifier().equals(otherNode.getIdentifier());
+	}
+	
+	public ASTAnonymousFunctionNode deepCopy()
+	{
+		ASTAnonymousFunctionNode copy = new ASTAnonymousFunctionNode(0);
+		copy.setIdentifier(this.getIdentifier());
+		copy.setAnonymousFunction(this.getAnonymousFunction());
+		if(this.getParentEnv() != null)
+		{
+			HashMap<String, SimpleNode> copiedEnv = new HashMap<String, SimpleNode>();
+			Iterator<Entry<String, SimpleNode>> iter =
+					this.getParentEnv().entrySet().iterator();
+			while(iter.hasNext())
+			{
+				Entry<String, SimpleNode> symtabItem = iter.next();
+				if(symtabItem.getValue() instanceof ASTValue)
+				{
+					copiedEnv.put(symtabItem.getKey(), 
+							((ASTValue)symtabItem.getValue()).deepCopy());
+				}
+				else
+				{
+					copiedEnv.put(symtabItem.getKey(), 
+							((ASTAnonymousFunctionNode)symtabItem.getValue()).deepCopy());
+				}
+				
+			}
+			
+			copy.setParentEnv(copiedEnv);
+		}
+		return copy;
 	}
 }

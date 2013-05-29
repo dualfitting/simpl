@@ -48,4 +48,6 @@ public class ASTAdditiveMinusNode extends SimpleNode {
 		return this.jjtGetChild(0).equals(otherNode.jjtGetChild(0))
 				&& this.jjtGetChild(1).equals(otherNode.jjtGetChild(1));
 	}
+	
+
 }

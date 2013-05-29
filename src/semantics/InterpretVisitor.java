@@ -104,12 +104,12 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		
 		HashMap<String, SimpleNode> funcEnv = envStack.peek();
 
-		if(null != node.getParentEnv())
-		{
-			node.getParentEnv().putAll(funcEnv);
+		//if(null != node.getParentEnv())
+		//{
+			//node.getParentEnv().putAll(funcEnv);
 			//funcEnv.putAll(node.getParentEnv());
-		} 
-		else
+		//} 
+	    //else
 	        node.setParentEnv(funcEnv);
 
 		// push it to the stack
@@ -214,11 +214,11 @@ public class InterpretVisitor implements SimPLParserVisitor {
 			
 
 			// get return value
-			SimpleNode returnValue = executeStack.peek();
+			SimpleNode returnValue = executeStack.pop();
 			
 			// if it's a variable, change it to a value
 			if (returnValue instanceof ASTVariable) {
-				executeStack.pop();
+				
 				if(envStack.containsKey(((ASTVariable) returnValue).getName()))
 				{
 					returnValue = (SimpleNode) envStack
@@ -230,21 +230,20 @@ public class InterpretVisitor implements SimPLParserVisitor {
 						    + ((ASTVariable) returnValue).getName()+ ".");
 				}
 				
-				
-				
-				executeStack.push(returnValue);
 			}
+			
 
 			// restore environment after function call
-			parentEnv = envStack.pop();
+			envStack.pop();
 
 			
 			if (returnValue instanceof ASTValue) {
 				// if a value is returned then end this call
-
+				executeStack.push(((ASTValue)returnValue).deepCopy());
 				
 				return ((ASTValue) returnValue).getType();
 			} else if (returnValue instanceof ASTAnonymousFunctionNode) {
+				executeStack.push(((ASTAnonymousFunctionNode)returnValue).deepCopy());
 				
 				return SimPLTypes.TYPE_FUNCTION;
 			} else {
