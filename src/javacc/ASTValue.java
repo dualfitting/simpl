@@ -161,17 +161,17 @@ public class ASTValue extends SimpleNode {
 					return new Integer(astValue.getIntValue()).toString();
 				case SimPLTypes.TYPE_LIST:
 					List<Object> astValueList = astValue.getListValue();
-					String listStr = "list(";
+					String listStr = "[";
 					if(astValueList.size() > 0)
 					{
 						for(int i = 0; i < astValueList.size() - 1; ++i)
 						{
-							listStr += dump((SimpleNode)astValueList.get(i)) + "::";
+							listStr += dump((SimpleNode)astValueList.get(i)) + " ";
 						}
 						
-						listStr += dump((SimpleNode)astValueList.get(astValueList.size() - 1)) + ")";
+						listStr += dump((SimpleNode)astValueList.get(astValueList.size() - 1)) + "]";
 					}
-					else listStr += "nil)";
+					else listStr = "nil";
 					
 					return listStr;
 				case SimPLTypes.TYPE_PAIR:

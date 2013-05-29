@@ -355,6 +355,34 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		// should be a value node
 		SimpleNode valNode = executeStack.pop();
 		
+		if(valNode instanceof ASTVariable)
+		{
+			String valName = ((ASTVariable)valNode).getName();
+			if(envStack.containsKey(valName)
+					&& (envStack.get(valName) instanceof ASTValue
+					|| envStack.get(valName) instanceof ASTAnonymousFunctionNode))
+			{
+				valNode = envStack.get(valName);
+				if(valNode instanceof ASTValue)
+				{
+					valNode = ((ASTValue) valNode).deepCopy();
+				}
+				else
+				{
+					valNode = ((ASTAnonymousFunctionNode) valNode).deepCopy();
+				}
+			}
+			else if (envStack.containsKey(valName))
+			{
+				throw new TypeException("Error value type in let expression");
+			}
+			else
+			{
+				throw new InterpretException("Undefined identifier " + valName);
+			}
+			
+		}
+		
 		if(!(valNode instanceof ASTValue)
 				&& !(valNode instanceof ASTAnonymousFunctionNode))
 		{

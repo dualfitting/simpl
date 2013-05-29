@@ -186,6 +186,16 @@ public class SimPLUnittest {
 		whilelist.add(new Integer(3));
 		whilelist.add(new Integer(4));
 		testSet.put("testcase/correctcases/while.spl", whilelist);
+		LinkedList<Integer> queensList = new LinkedList<Integer>();
+		queensList.add(5);
+		queensList.add(2);
+		queensList.add(4);
+		queensList.add(7);
+		queensList.add(3);
+		queensList.add(8);
+		queensList.add(6);
+		queensList.add(1);
+		testSet.put("testcase/correctcases/queens.spl", queensList);
 		
 		LinkedList<Integer> reverseList = new LinkedList<Integer>();
 		reverseList.add(new Integer(3));
