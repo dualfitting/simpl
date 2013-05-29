@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -89,8 +90,15 @@ public class SimPL {
 			
 			
 		} else if (args.length == 2 & args[0].equals("-f")) {
-			System.out.println("Reading from file " + args[1] + " . . .");
+			//System.out.println("Reading from file " + args[1] + " . . .");
+			String inputFilename = new String(args[1]);
+			
+			
 			try {
+				if(!inputFilename.endsWith(".spl") || inputFilename.length() <= 4)
+				{
+					throw new Exception("Input file should be end with .spl and formats like sample.spl");
+				}
 				String simplProgram = "";
 				BufferedReader br = new BufferedReader(new FileReader(args[1]));
 				while (true) {
@@ -120,6 +128,9 @@ public class SimPL {
 			}
 		} else {
 			System.out.println("SimPL Parser:  Usage is one of:");
+			System.out.println("java -jar SimPL.jar");
+			System.out.println("java -jar SimPL.jar -s");
+			System.out.println("java -jar SimPL.jar -f FILE");
 			return;
 		}
 
@@ -129,28 +140,32 @@ public class SimPL {
 			SimpleNode v = (SimpleNode) astTree.jjtAccept(new InterpretVisitor(), null);
 			
 			System.out.println(v.toString());
-
+			
+			String outputFilename = args[1].replaceAll(".spl", ".rst");
+			FileWriter fw = new FileWriter(outputFilename);
+			fw.write(v.toString());
+			fw.close();
 		} catch (ParseException e) {
 			System.out.println(e.getMessage());
 			System.out.println("Encountered errors during parse.");
 		}
-//		catch (TypeException e)
-//		{
-//			System.out.println(e.getMessage());
-//			System.out.println("Encountered errors during type checking.");
-//		}
-//		catch (InterpretException e)
-//		{
-//			System.out.println(e.getMessage());
-//			System.out.println("Encountered errors during interpreting.");
-//		} 
-//		catch (Exception e)
-//		{
-//			System.out.println(e.getMessage());
-//		} catch (Error e)
-//		{
-//			System.out.println(e.getMessage());
-//		}
+		catch (TypeException e)
+		{
+			System.out.println(e.getMessage());
+			System.out.println("Encountered errors during type checking.");
+		}
+		catch (InterpretException e)
+		{
+			System.out.println(e.getMessage());
+			System.out.println("Encountered errors during interpreting.");
+		} 
+		catch (Exception e)
+		{
+			System.out.println(e.getMessage());
+		} catch (Error e)
+		{
+			System.out.println(e.getMessage());
+		}
 		
 	}
 

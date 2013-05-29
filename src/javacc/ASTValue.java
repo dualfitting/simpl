@@ -61,7 +61,7 @@ public class ASTValue extends SimpleNode {
 					newCopy.setPairValue(newCopyPair);
 					return newCopy;
 				default:
-					return null;
+					return v;
 			}
 		}
 		else
@@ -178,6 +178,8 @@ public class ASTValue extends SimpleNode {
 					List<Object> astValuePair = astValue.getPairValue();
 					return "(" + dump((SimpleNode)astValuePair.get(0)) +
 							"," + dump((SimpleNode)astValuePair.get(1)) + ")";
+				case SimPLTypes.TYPE_UNIT:
+					return "()";
 				default:
 					return "";
 			}
@@ -230,6 +232,8 @@ public class ASTValue extends SimpleNode {
 				List<Object> astValuePair = astValue.getPairValue();
 				return this.getPairValue().get(0).equals(astValuePair.get(0))
 						&& this.getPairValue().get(1).equals(astValuePair.get(1));
+			case SimPLTypes.TYPE_UNIT:
+				return true;
 			default:
 				return false;
 		}

@@ -185,6 +185,12 @@ public class SimPLUnittest {
 		whilelist.add(new Integer(3));
 		whilelist.add(new Integer(4));
 		testSet.put("testcase/correctcases/while.spl", whilelist);
+		
+		LinkedList<Integer> reverseList = new LinkedList<Integer>();
+		reverseList.add(new Integer(3));
+		reverseList.add(new Integer(2));
+		reverseList.add(new Integer(1));
+		testSet.put("testcase/correctcases/reverse.spl", reverseList);
 		int sum = testSet.size();
 		int passed = 0;
 

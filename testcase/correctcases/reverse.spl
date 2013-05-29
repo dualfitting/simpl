@@ -6,7 +6,7 @@ in
     reverse = fun l -> if l = nil then nil else 
     ((concat (reverse (tail l))) ((head l)::nil)) end
   in
-    (reverse (1::(2::nil)))
+    (reverse (1::(2::(3::nil))))
   end
 end
 $
