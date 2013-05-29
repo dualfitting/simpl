@@ -1,0 +1,7 @@
+/* length of a list */
+let
+  length = fun l -> if l = nil then 0 else 1 + (length (tail l)) end
+in
+  (length (1::(2::(3::nil))))
+end
+

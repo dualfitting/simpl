@@ -5,6 +5,7 @@ package javacc;
 import java.util.LinkedList;
 import java.util.List;
 
+import semantics.SimPLTypes;
 import utils.InterpretException;
 import utils.TypeException;
 
@@ -19,30 +20,56 @@ public class ASTValue extends SimpleNode {
 	private List<Object> pairValue;
 	private int type;
 	
-	public ASTValue DeepCopy()
+	public ASTValue deepCopy()
 	{
-		ASTValue copy = new ASTValue(super.id);
-		copy.setName(name);
-		copy.setIntValue(intValue);
-		copy.setType(type);
-		if(null != listValue)
-		{
-			List<Object> copyList = new LinkedList<Object>();
-			for(int i = 0; i < listValue.size(); ++i)
-				copyList.add(listValue.get(i));
-			copy.setListValue(copyList);
-		}
-		
-		if(null != pairValue)
-		{
-			List<Object> copyPair = new LinkedList<Object>();
-			for(int i = 0; i < pairValue.size(); ++i)
-				copyPair.add(pairValue.get(i));
-			copy.setPairValue(copyPair);
-		}
-		
-		return copy;
+		return (ASTValue)copyDump(this);
 	}
+	
+	public SimpleNode copyDump(SimpleNode v)
+	{
+		if(v instanceof ASTValue)
+		{
+			ASTValue oldCopy = (ASTValue)v;
+			ASTValue newCopy = new ASTValue(oldCopy.id);
+			newCopy.setType(oldCopy.getType());
+			switch(newCopy.getType())
+			{
+				case SimPLTypes.TYPE_BOOLEAN:
+					newCopy.setBoolValue(oldCopy.getBoolValue());
+					return newCopy;
+				case SimPLTypes.TYPE_INTEGER:
+					newCopy.setIntValue(oldCopy.getIntValue());
+					return newCopy;
+				case SimPLTypes.TYPE_LIST:
+					List<Object> oldCopyList = oldCopy.getListValue();
+					List<Object> newCopyList = new LinkedList<Object>();
+
+					for(int i = 0; i < oldCopyList.size(); ++i)
+					{
+						newCopyList.add(this.copyDump((SimpleNode)oldCopyList.get(i)));
+					}
+					newCopy.setListValue(newCopyList);
+					return newCopy;
+				case SimPLTypes.TYPE_PAIR:
+					List<Object> oldCopyPiar = oldCopy.getPairValue();
+					List<Object> newCopyPair = new LinkedList<Object>();
+
+					for(int i = 0; i < oldCopyPiar.size(); ++i)
+					{
+						newCopyPair.add(this.copyDump((SimpleNode)oldCopyPiar.get(i)));
+					}
+					newCopy.setPairValue(newCopyPair);
+					return newCopy;
+				default:
+					return null;
+			}
+		}
+		else
+		{
+			return v;
+		}
+	}
+	
 
 	public ASTValue(int id) {
 		super(id);
@@ -114,6 +141,99 @@ public class ASTValue extends SimpleNode {
 
 	public void setType(int type) {
 		this.type = type;
+	}
+	
+	public String toString()
+	{
+		return this.dump(this);
+	}
+	
+	public String dump(SimpleNode v)
+	{
+		if(v instanceof ASTValue)
+		{
+			ASTValue astValue = (ASTValue)v;
+			switch(astValue.getType())
+			{
+				case SimPLTypes.TYPE_BOOLEAN:
+					return new Boolean(astValue.getBoolValue()).toString();
+				case SimPLTypes.TYPE_INTEGER:
+					return new Integer(astValue.getIntValue()).toString();
+				case SimPLTypes.TYPE_LIST:
+					List<Object> astValueList = astValue.getListValue();
+					String listStr = "list(";
+					if(astValueList.size() > 0)
+					{
+						for(int i = 0; i < astValueList.size() - 1; ++i)
+						{
+							listStr += dump((SimpleNode)astValueList.get(i)) + "::";
+						}
+						
+						listStr += dump((SimpleNode)astValueList.get(astValueList.size() - 1)) + ")";
+					}
+					else listStr += "nil)";
+					
+					return listStr;
+				case SimPLTypes.TYPE_PAIR:
+					List<Object> astValuePair = astValue.getPairValue();
+					return "(" + dump((SimpleNode)astValuePair.get(0)) +
+							"," + dump((SimpleNode)astValuePair.get(1)) + ")";
+				default:
+					return "";
+			}
+		}
+		else
+		{
+			ASTAnonymousFunctionNode func = (ASTAnonymousFunctionNode)v;
+			
+			return func.toString();
+		}
+	}
+	
+	public boolean equals(Object obj)
+	{
+		if(!(obj instanceof ASTValue))
+		{
+			return false;
+			
+		}
+		
+		ASTValue astValue = (ASTValue)obj;
+		if(astValue.getType() != this.getType())
+		{
+			return false;
+		}
+		switch(astValue.getType())
+		{
+			case SimPLTypes.TYPE_BOOLEAN:
+				return astValue.getBoolValue() == this.getBoolValue();
+			case SimPLTypes.TYPE_INTEGER:
+				return astValue.getIntValue() == this.getIntValue();
+			case SimPLTypes.TYPE_LIST:
+				List<Object> astValueList = astValue.getListValue();
+				if(this.getListValue().size() != astValue.getListValue().size())
+				{
+					return false;
+				}
+				boolean listBool = true;
+				for(int i = 0; i < astValueList.size(); ++i)
+				{
+					listBool = listBool && this.getListValue().get(i).equals(astValueList.get(i));
+					if(!listBool)
+					{
+						return false;
+					}
+				}
+				
+				return listBool;
+			case SimPLTypes.TYPE_PAIR:
+				List<Object> astValuePair = astValue.getPairValue();
+				return this.getPairValue().get(0).equals(astValuePair.get(0))
+						&& this.getPairValue().get(1).equals(astValuePair.get(1));
+			default:
+				return false;
+		}
+		
 	}
 	
 

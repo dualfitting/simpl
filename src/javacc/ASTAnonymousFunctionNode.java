@@ -57,10 +57,26 @@ public class ASTAnonymousFunctionNode extends SimpleNode {
 	 * Accept the visitor.
 	 * 
 	 * @throws TypeException
-	 * @throws InterpretException 
+	 * @throws InterpretException
 	 **/
 	public Object jjtAccept(SimPLParserVisitor visitor, Object data)
 			throws TypeException, InterpretException {
 		return visitor.visit(this, data);
+	}
+
+	public String toString() {
+		return "fun " + this.getIdentifier() + " -> "
+				+ this.jjtGetChild(1).toString();
+	}
+
+	public boolean equals(Object obj) {
+		if (!(obj instanceof ASTAnonymousFunctionNode)) {
+			return false;
+		}
+
+		ASTAnonymousFunctionNode otherNode = (ASTAnonymousFunctionNode) obj;
+
+		return this.jjtGetChild(1).equals(otherNode.jjtGetChild(1))
+				&& this.getIdentifier().equals(otherNode.getIdentifier());
 	}
 }

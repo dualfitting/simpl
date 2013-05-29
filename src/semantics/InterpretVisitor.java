@@ -1,9 +1,11 @@
 package semantics;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
+import java.util.Map.Entry;
 
 import semantics.SimPLTypes;
 import utils.*;
@@ -101,6 +103,30 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		// will interpret it when called
 		node.setIdentifier((ASTVariable) node.jjtGetChild(0));
 		node.setAnonymousFunction((SimpleNode) node.jjtGetChild(1));
+		
+		HashMap<String, SimpleNode> funcEnv = envStack.peek();
+//		HashMap<String, SimpleNode> copiedEnv = new HashMap<String, SimpleNode>();
+//		
+//		Iterator<Entry<String, SimpleNode>> iter = funcEnv.entrySet().iterator();
+//		while(iter.hasNext())
+//		{
+//			Entry<String, SimpleNode> entry = iter.next();
+//			if(entry.getValue() instanceof ASTValue)
+//			{
+//				copiedEnv.put(entry.getKey(), ((ASTValue)entry.getValue()).deepCopy());
+//			}
+//			else
+//			{
+//				copiedEnv.put(entry.getKey(), entry.getValue());
+//			}
+//		}
+		if(null != node.getParentEnv())
+		{
+			node.getParentEnv().putAll(funcEnv);
+			//funcEnv.putAll(node.getParentEnv());
+		} 
+		else
+	        node.setParentEnv(funcEnv);
 
 		// push it to the stack
 		executeStack.push(node);
@@ -187,18 +213,24 @@ public class InterpretVisitor implements SimPLParserVisitor {
 
 				parentEnv.putAll(func.getParentEnv());
 			}
+			if(valueNode instanceof ASTValue)
+			{
+				valueNode = ((ASTValue)valueNode).deepCopy();
+			}
 			// prepare environment for function interpret
 			envStack.push(parentEnv);
 			// pass args to the function environment
+
+
 			envStack.add(func.getIdentifier().getName(), valueNode);
 			
-			
-
 			// interpret function body
 			func.getAnonymousFunction().jjtAccept(this, data);
+			
 
 			// get return value
 			SimpleNode returnValue = executeStack.peek();
+			
 
 			// if it's a variable, change it to a value
 			if (returnValue instanceof ASTVariable) {
@@ -214,27 +246,26 @@ public class InterpretVisitor implements SimPLParserVisitor {
 						    + ((ASTVariable) returnValue).getName()+ ".");
 				}
 				
+				
+				
 				executeStack.push(returnValue);
 			}
 
 			// restore environment after function call
-			envStack.pop();
+			parentEnv = envStack.pop();
 
 			
 			if (returnValue instanceof ASTValue) {
 				// if a value is returned then end this call
+				
+				if(func.getAnonymousFunction().toString().contains("reverse"))
+					System.out.println("reverse" + "(" + valueNode + ")" + returnValue.toString());
+				else
+					System.out.println("concat" + "(" + valueNode + ")" + returnValue.toString());
+				
+				
 				return ((ASTValue) returnValue).getType();
 			} else if (returnValue instanceof ASTAnonymousFunctionNode) {
-				// if a function is returned 
-				// then callee gets caller's environment 
-				ASTAnonymousFunctionNode returnFuncNode = 
-						((ASTAnonymousFunctionNode) returnValue);
-				
-				if(null != returnFuncNode.getParentEnv())
-				{
-					parentEnv.putAll(returnFuncNode.getParentEnv());
-				}
-				returnFuncNode.setParentEnv(parentEnv);
 				return SimPLTypes.TYPE_FUNCTION;
 			} else {
 				// not a valid return type
@@ -345,9 +376,9 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		// Create new environment for interpret let expression
 		HashMap<String, SimpleNode> allocEnv = new HashMap<String, SimpleNode>();
 
-//		if(null != node.getParentEnv())
+//		if(valNode instanceof ASTValue)
 //		{
-//			allocEnv.putAll(node.getParentEnv());
+//			valNode = ((ASTValue) valNode).deepCopy();
 //		}
 		
 		// prepare environment for interpret let expression e2
@@ -435,6 +466,7 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		} else {
 			// else branch
 			Integer elseType = (Integer) elseExpression.jjtAccept(this, data);
+
 			return elseType;
 		}
 	}
@@ -461,9 +493,12 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		if (firstNode instanceof ASTVariable) {
 
 			String varName = ((ASTVariable) firstNode).getName();
-			if (envStack.containsKey(varName)) {
-				firstValue = envStack.get(varName);
-			} else {
+			if (envStack.containsKey(varName) && (envStack.get(varName) instanceof ASTValue)) {
+				firstValue = (ASTValue) envStack.get(varName);
+			} else if (envStack.containsKey(varName)){
+				throw new TypeException("Error type of " 
+					    + varName + ". Expecting value instead of function");
+			}else {
 				throw new TypeException("Error type ");
 			}
 		} else if (firstNode instanceof ASTValue) {
@@ -481,9 +516,12 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		if (secondNode instanceof ASTVariable) {
 
 			String varName = ((ASTVariable) secondNode).getName();
-			if (envStack.containsKey(varName)) {
-				secondValue = envStack.get(varName);
-			} else {
+			if (envStack.containsKey(varName) && (envStack.get(varName) instanceof ASTValue)) {
+				secondValue = (ASTValue) envStack.get(varName);
+			} else if (envStack.containsKey(varName)){
+				throw new TypeException("Error type of " 
+					    + varName + ". Expecting value instead of function");
+			}else {
 				throw new InterpretException("Undefined identifier " 
 					    + varName + ".");
 			}
@@ -506,7 +544,6 @@ public class InterpretVisitor implements SimPLParserVisitor {
 				// do nothing about secondvalue
 			}else if(firstValue instanceof ASTValue
 					&& ((ASTValue)secondValue).getListValue().size() > 0
-					&& ((ASTValue)firstValue).getType() != SimPLTypes.TYPE_LIST
 					&& ((ASTValue)secondValue).getListValue().get(0) instanceof ASTValue
 					&& (((ASTValue)((ASTValue)secondValue).getListValue().get(0)).getType()
 					== ((ASTValue)firstValue).getType()))
@@ -530,6 +567,7 @@ public class InterpretVisitor implements SimPLParserVisitor {
 			executeStack.push(secondValue);
 		} else if (firstValue instanceof ASTValue
 				&& secondValue instanceof ASTValue
+				&& SimPLTypes.TYPE_LIST != ((ASTValue)secondValue).getType()
 				&& ((ASTValue)firstValue).getType() == ((ASTValue)secondValue).getType()) {
 			ASTValue newListValue = new ASTValue(0);
 
@@ -555,10 +593,13 @@ public class InterpretVisitor implements SimPLParserVisitor {
 			joinedList.add(secondValue);
 
 			newListValue.setListValue(joinedList);
+			executeStack.push(newListValue);
 		}
 		else {
 			throw new TypeException("Error value type for list expression.");
 		}
+		
+		//System.out.println(firstValue + " join " + secondValue);
 
 		return SimPLTypes.TYPE_LIST;
 	}
@@ -572,9 +613,12 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		if (firstNode instanceof ASTVariable) {
 
 			String varName = ((ASTVariable) firstNode).getName();
-			if (envStack.containsKey(varName)) {
+			if (envStack.containsKey(varName) && (envStack.get(varName) instanceof ASTValue)) {
 				firstValue = (ASTValue) envStack.get(varName);
-			} else {
+			} else if (envStack.containsKey(varName)){
+				throw new TypeException("Error type of " 
+					    + varName + ". Expecting value instead of function");
+			}else {
 				throw new InterpretException("Undefined identifier " 
 					    + varName + ".");
 			}
@@ -591,9 +635,12 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		if (secondNode instanceof ASTVariable) {
 
 			String varName = ((ASTVariable) secondNode).getName();
-			if (envStack.containsKey(varName)) {
+			if (envStack.containsKey(varName) && (envStack.get(varName) instanceof ASTValue)) {
 				secondValue = (ASTValue) envStack.get(varName);
-			} else {
+			} else if (envStack.containsKey(varName)){
+				throw new TypeException("Error type of " 
+					    + varName + ". Expecting value instead of function");
+			}else {
 				throw new InterpretException("Undefined identifier " 
 					    + varName + ".");
 			}
@@ -626,8 +673,11 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		if (firstNode instanceof ASTVariable) {
 
 			String varName = ((ASTVariable) firstNode).getName();
-			if (envStack.containsKey(varName)) {
+			if (envStack.containsKey(varName) && (envStack.get(varName) instanceof ASTValue)) {
 				firstValue = (ASTValue) envStack.get(varName);
+			} else if (envStack.containsKey(varName)){
+				throw new TypeException("Error type of " 
+					    + varName + ". Expecting value instead of function");
 			} else {
 				throw new InterpretException("Undefined identifier " 
 					    + varName + ".");
@@ -645,9 +695,12 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		if (secondNode instanceof ASTVariable) {
 
 			String varName = ((ASTVariable) secondNode).getName();
-			if (envStack.containsKey(varName)) {
+			if (envStack.containsKey(varName) && (envStack.get(varName) instanceof ASTValue)) {
 				secondValue = (ASTValue) envStack.get(varName);
-			} else {
+			} else if (envStack.containsKey(varName)){
+				throw new TypeException("Error type of " 
+					    + varName + ". Expecting value instead of function");
+			}else {
 				throw new InterpretException("Undefined identifier " 
 					    + varName + ".");
 			}
@@ -679,9 +732,12 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		if (firstNode instanceof ASTVariable) {
 
 			String varName = ((ASTVariable) firstNode).getName();
-			if (envStack.containsKey(varName)) {
+			if (envStack.containsKey(varName) && (envStack.get(varName) instanceof ASTValue)) {
 				firstValue = (ASTValue) envStack.get(varName);
-			} else {
+			} else if (envStack.containsKey(varName)){
+				throw new TypeException("Error type of " 
+					    + varName + ". Expecting value instead of function");
+			}else {
 				throw new InterpretException("Undefined identifier " 
 					    + varName + ".");
 			}
@@ -698,9 +754,12 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		if (secondNode instanceof ASTVariable) {
 
 			String varName = ((ASTVariable) secondNode).getName();
-			if (envStack.containsKey(varName)) {
+			if (envStack.containsKey(varName) && (envStack.get(varName) instanceof ASTValue)) {
 				secondValue = (ASTValue) envStack.get(varName);
-			} else {
+			} else if (envStack.containsKey(varName)){
+				throw new TypeException("Error type of " 
+					    + varName + ". Expecting value instead of function");
+			}else {
 				throw new InterpretException("Undefined identifier " 
 					    + varName + ".");
 			}
@@ -714,26 +773,7 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		if (firstValue.getType() != secondValue.getType()) {
 			throw new TypeException("Equal-expression requires the same types on two sides.");
 		}
-		boolean result;
-
-		switch (firstValue.getType()) {
-		// currently equal-expression can only be applied to those types
-		case SimPLTypes.TYPE_BOOLEAN:
-			result = firstValue.getBoolValue() == secondValue.getBoolValue();
-			break;
-		case SimPLTypes.TYPE_INTEGER:
-			result = firstValue.getIntValue() == secondValue.getIntValue();
-			break;
-		case SimPLTypes.TYPE_FUNCTION:
-			// break;
-		case SimPLTypes.TYPE_LIST:
-			// break;
-		case SimPLTypes.TYPE_PAIR:
-			// break;
-		default:
-			throw new TypeException("Unsupported type comparsion in equal-expression.");
-
-		}
+		boolean result = firstValue.equals(secondValue);
 
 		ASTValue newBoolValue = new ASTValue(0);
 
@@ -752,9 +792,12 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		if (firstNode instanceof ASTVariable) {
 
 			String varName = ((ASTVariable) firstNode).getName();
-			if (envStack.containsKey(varName)) {
+			if (envStack.containsKey(varName) && (envStack.get(varName) instanceof ASTValue)) {
 				firstValue = (ASTValue) envStack.get(varName);
-			} else {
+			} else if (envStack.containsKey(varName)){
+				throw new TypeException("Error type of " 
+					    + varName + ". Expecting value instead of function");
+			}else {
 				throw new InterpretException("Undefined identifier " 
 					    + varName + ".");
 			}
@@ -771,9 +814,12 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		if (secondNode instanceof ASTVariable) {
 
 			String varName = ((ASTVariable) secondNode).getName();
-			if (envStack.containsKey(varName)) {
+			if (envStack.containsKey(varName) && (envStack.get(varName) instanceof ASTValue)) {
 				secondValue = (ASTValue) envStack.get(varName);
-			} else {
+			} else if (envStack.containsKey(varName)){
+				throw new TypeException("Error type of " 
+					    + varName + ". Expecting value instead of function");
+			}else {
 				throw new InterpretException("Undefined identifier " 
 					    + varName + ".");
 			}
@@ -809,9 +855,12 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		if (firstNode instanceof ASTVariable) {
 
 			String varName = ((ASTVariable) firstNode).getName();
-			if (envStack.containsKey(varName)) {
+			if (envStack.containsKey(varName) && (envStack.get(varName) instanceof ASTValue)) {
 				firstValue = (ASTValue) envStack.get(varName);
-			} else {
+			} else if (envStack.containsKey(varName)){
+				throw new TypeException("Error type of " 
+					    + varName + ". Expecting value instead of function");
+			}else {
 				throw new InterpretException("Undefined identifier " 
 					    + varName + ".");
 			}
@@ -828,9 +877,12 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		if (secondNode instanceof ASTVariable) {
 
 			String varName = ((ASTVariable) secondNode).getName();
-			if (envStack.containsKey(varName)) {
+			if (envStack.containsKey(varName) && (envStack.get(varName) instanceof ASTValue)) {
 				secondValue = (ASTValue) envStack.get(varName);
-			} else {
+			} else if (envStack.containsKey(varName)){
+				throw new TypeException("Error type of " 
+					    + varName + ". Expecting value instead of function");
+			}else {
 				throw new InterpretException("Undefined identifier " 
 					    + varName + ".");
 			}
@@ -931,6 +983,7 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		if (firstNode instanceof ASTVariable) {
 
 			String varName = ((ASTVariable) firstNode).getName();
+
 			if (envStack.containsKey(varName) && (envStack.get(varName) instanceof ASTValue)) {
 				firstValue = (ASTValue) envStack.get(varName);
 			} else if (envStack.containsKey(varName)){
@@ -980,7 +1033,6 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		newIntegerValue.setType(SimPLTypes.TYPE_INTEGER);
 		newIntegerValue.setIntValue(firstValue.getIntValue()
 				- secondValue.getIntValue());
-
 		executeStack.push(newIntegerValue);
 
 		return SimPLTypes.TYPE_INTEGER;
@@ -1256,9 +1308,12 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		if (sn instanceof ASTVariable) {
 
 			String snName = ((ASTVariable) sn).getName();
-			if (envStack.containsKey(snName)) {
+			if (envStack.containsKey(snName) && (envStack.get(snName) instanceof ASTValue)) {
 				snValue = (ASTValue) envStack.get(snName);
-			} else {
+			} else if (envStack.containsKey(snName)){
+				throw new TypeException("Error type of " 
+					    + snName + ". Expecting value instead of function");
+			}else {
 				throw new InterpretException("Undefined identifier " 
 					    + snName + ".");
 			}
@@ -1298,8 +1353,11 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		if (sn instanceof ASTVariable) {
 
 			String snName = ((ASTVariable) sn).getName();
-			if (envStack.containsKey(snName)) {
+			if (envStack.containsKey(snName) && (envStack.get(snName) instanceof ASTValue)) {
 				snValue = (ASTValue) envStack.get(snName);
+			} else if (envStack.containsKey(snName)){
+				throw new TypeException("Error type of " 
+					    + snName + ". Expecting value instead of function");
 			} else {
 				throw new InterpretException("Undefined identifier " 
 					    + snName + ".");
@@ -1339,12 +1397,17 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		if (sn instanceof ASTVariable) {
 
 			String snName = ((ASTVariable) sn).getName();
-			if (envStack.containsKey(snName)) {
+			
+			if (envStack.containsKey(snName) && (envStack.get(snName) instanceof ASTValue)) {
 				snValue = (ASTValue) envStack.get(snName);
-			} else {
+			} else if (envStack.containsKey(snName)){
+				throw new TypeException("Error type of " 
+					    + snName + ". Expecting value instead of function");
+			}else {
 				throw new InterpretException("Undefined identifier " 
 					    + snName + ".");
 			}
+
 		} else if (sn instanceof ASTValue) {
 			snValue = (ASTValue) sn;
 		} else {
@@ -1359,11 +1422,13 @@ public class InterpretVisitor implements SimPLParserVisitor {
 			value = (SimpleNode)snValue.getListValue().get(0);
 		} else {
 			value = new ASTValue(0);
+			
 			((ASTValue)value).setType(SimPLTypes.TYPE_LIST);
 			((ASTValue)value).setListValue(snValue.getListValue());
 		}
 
 		executeStack.push(value);
+		
 		
 		if(value instanceof ASTValue)
 		{
@@ -1385,9 +1450,12 @@ public class InterpretVisitor implements SimPLParserVisitor {
 		if (sn instanceof ASTVariable) {
 
 			String snName = ((ASTVariable) sn).getName();
-			if (envStack.containsKey(snName)) {
+			if (envStack.containsKey(snName) && (envStack.get(snName) instanceof ASTValue)) {
 				snValue = (ASTValue) envStack.get(snName);
-			} else {
+			} else if (envStack.containsKey(snName)){
+				throw new TypeException("Error type of " 
+					    + snName + ". Expecting value instead of function");
+			}else {
 				throw new InterpretException("Undefined identifier " 
 					    + snName + ".");
 			}
@@ -1401,13 +1469,20 @@ public class InterpretVisitor implements SimPLParserVisitor {
 			throw new TypeException("Tail-expression requires list type.");
 		}
 
-		List<Object> listValue = snValue.getListValue();
-		if (listValue.size() > 1) {
-			listValue.remove(0);
-			snValue.setListValue(listValue);
-		}
-
-		executeStack.push(snValue);
+//		List<Object> listValue = snValue.getListValue();
+		
+//		List<Object> subValue = new LinkedList<Object>();
+//		for(int i = 1; i < listValue.size(); ++i)
+//		{
+//			subValue.add(listValue.get(i));
+//		}
+		
+//		ASTValue newListValue = new ASTValue(0);
+//		newListValue.setType(SimPLTypes.TYPE_LIST);
+//		newListValue.setListValue(subValue);
+		ASTValue newListValue = snValue.deepCopy();
+		newListValue.getListValue().remove(0);
+		executeStack.push(newListValue);
 
 		return SimPLTypes.TYPE_LIST;
 	}

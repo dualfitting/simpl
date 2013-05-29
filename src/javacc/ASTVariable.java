@@ -29,7 +29,7 @@ public class ASTVariable extends SimpleNode {
 	 * Accept the visitor.
 	 * 
 	 * @throws TypeException
-	 * @throws InterpretException 
+	 * @throws InterpretException
 	 **/
 	public Object jjtAccept(SimPLParserVisitor visitor, Object data)
 			throws TypeException, InterpretException {
@@ -42,6 +42,20 @@ public class ASTVariable extends SimpleNode {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String toString() {
+		return this.name;
+	}
+
+	public boolean equals(Object obj) {
+		if (!(obj instanceof ASTVariable)) {
+			return false;
+		}
+
+		ASTVariable otherNode = (ASTVariable) obj;
+
+		return this.name.equals(otherNode.name);
 	}
 
 }

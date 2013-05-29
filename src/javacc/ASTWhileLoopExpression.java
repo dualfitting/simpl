@@ -6,26 +6,46 @@ import utils.InterpretException;
 import utils.TypeException;
 
 public class ASTWhileLoopExpression extends SimpleNode {
-  public ASTWhileLoopExpression(int id) {
-    super(id);
-  }
+	public ASTWhileLoopExpression(int id) {
+		super(id);
+	}
 
-  public ASTWhileLoopExpression(SimPLParser p, int id) {
-    super(p, id);
-  }
+	public ASTWhileLoopExpression(SimPLParser p, int id) {
+		super(p, id);
+	}
 
-  public static Node jjtCreate(int id) {
-      return new ASTWhileLoopExpression(id);
-  }
+	public static Node jjtCreate(int id) {
+		return new ASTWhileLoopExpression(id);
+	}
 
-  public static Node jjtCreate(SimPLParser p, int id) {
-      return new ASTWhileLoopExpression(p, id);
-  }
+	public static Node jjtCreate(SimPLParser p, int id) {
+		return new ASTWhileLoopExpression(p, id);
+	}
 
-  /** Accept the visitor. 
- * @throws TypeException 
- * @throws InterpretException **/
-  public Object jjtAccept(SimPLParserVisitor visitor, Object data) throws TypeException, InterpretException {
-    return visitor.visit(this, data);
-  }
+	/**
+	 * Accept the visitor.
+	 * 
+	 * @throws TypeException
+	 * @throws InterpretException
+	 **/
+	public Object jjtAccept(SimPLParserVisitor visitor, Object data)
+			throws TypeException, InterpretException {
+		return visitor.visit(this, data);
+	}
+
+	public String toString() {
+		return "while " + this.jjtGetChild(0).toString() + " do "
+				+ this.jjtGetChild(1).toString() + " end";
+	}
+
+	public boolean equals(Object obj) {
+		if (!(obj instanceof ASTWhileLoopExpression)) {
+			return false;
+		}
+
+		ASTWhileLoopExpression otherNode = (ASTWhileLoopExpression) obj;
+
+		return this.jjtGetChild(0).equals(otherNode.jjtGetChild(0))
+				&& this.jjtGetChild(1).equals(otherNode.jjtGetChild(1));
+	}
 }

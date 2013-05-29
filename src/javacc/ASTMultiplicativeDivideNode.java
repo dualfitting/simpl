@@ -6,26 +6,46 @@ import utils.InterpretException;
 import utils.TypeException;
 
 public class ASTMultiplicativeDivideNode extends SimpleNode {
-  public ASTMultiplicativeDivideNode(int id) {
-    super(id);
-  }
+	public ASTMultiplicativeDivideNode(int id) {
+		super(id);
+	}
 
-  public ASTMultiplicativeDivideNode(SimPLParser p, int id) {
-    super(p, id);
-  }
+	public ASTMultiplicativeDivideNode(SimPLParser p, int id) {
+		super(p, id);
+	}
 
-  public static Node jjtCreate(int id) {
-      return new ASTMultiplicativeDivideNode(id);
-  }
+	public static Node jjtCreate(int id) {
+		return new ASTMultiplicativeDivideNode(id);
+	}
 
-  public static Node jjtCreate(SimPLParser p, int id) {
-      return new ASTMultiplicativeDivideNode(p, id);
-  }
+	public static Node jjtCreate(SimPLParser p, int id) {
+		return new ASTMultiplicativeDivideNode(p, id);
+	}
 
-  /** Accept the visitor. 
- * @throws TypeException 
- * @throws InterpretException **/
-  public Object jjtAccept(SimPLParserVisitor visitor, Object data) throws TypeException, InterpretException {
-    return visitor.visit(this, data);
-  }
+	/**
+	 * Accept the visitor.
+	 * 
+	 * @throws TypeException
+	 * @throws InterpretException
+	 **/
+	public Object jjtAccept(SimPLParserVisitor visitor, Object data)
+			throws TypeException, InterpretException {
+		return visitor.visit(this, data);
+	}
+
+	public String toString() {
+		return this.jjtGetChild(0).toString() + " / "
+				+ this.jjtGetChild(1).toString();
+	}
+
+	public boolean equals(Object obj) {
+		if (!(obj instanceof ASTMultiplicativeDivideNode)) {
+			return false;
+		}
+
+		ASTMultiplicativeDivideNode otherNode = (ASTMultiplicativeDivideNode) obj;
+
+		return this.jjtGetChild(0).equals(otherNode.jjtGetChild(0))
+				&& this.jjtGetChild(1).equals(otherNode.jjtGetChild(1));
+	}
 }

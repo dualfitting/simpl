@@ -6,26 +6,46 @@ import utils.InterpretException;
 import utils.TypeException;
 
 public class ASTEqualityBiggerThanNode extends SimpleNode {
-  public ASTEqualityBiggerThanNode(int id) {
-    super(id);
-  }
+	public ASTEqualityBiggerThanNode(int id) {
+		super(id);
+	}
 
-  public ASTEqualityBiggerThanNode(SimPLParser p, int id) {
-    super(p, id);
-  }
+	public ASTEqualityBiggerThanNode(SimPLParser p, int id) {
+		super(p, id);
+	}
 
-  public static Node jjtCreate(int id) {
-      return new ASTEqualityBiggerThanNode(id);
-  }
+	public static Node jjtCreate(int id) {
+		return new ASTEqualityBiggerThanNode(id);
+	}
 
-  public static Node jjtCreate(SimPLParser p, int id) {
-      return new ASTEqualityBiggerThanNode(p, id);
-  }
+	public static Node jjtCreate(SimPLParser p, int id) {
+		return new ASTEqualityBiggerThanNode(p, id);
+	}
 
-  /** Accept the visitor. 
- * @throws TypeException 
- * @throws InterpretException **/
-  public Object jjtAccept(SimPLParserVisitor visitor, Object data) throws TypeException, InterpretException {
-    return visitor.visit(this, data);
-  }
+	/**
+	 * Accept the visitor.
+	 * 
+	 * @throws TypeException
+	 * @throws InterpretException
+	 **/
+	public Object jjtAccept(SimPLParserVisitor visitor, Object data)
+			throws TypeException, InterpretException {
+		return visitor.visit(this, data);
+	}
+
+	public String toString() {
+		return this.jjtGetChild(0).toString() + " > "
+				+ this.jjtGetChild(1).toString();
+	}
+
+	public boolean equals(Object obj) {
+		if (!(obj instanceof ASTEqualityBiggerThanNode)) {
+			return false;
+		}
+
+		ASTEqualityBiggerThanNode otherNode = (ASTEqualityBiggerThanNode) obj;
+
+		return this.jjtGetChild(0).equals(otherNode.jjtGetChild(0))
+				&& this.jjtGetChild(1).equals(otherNode.jjtGetChild(1));
+	}
 }

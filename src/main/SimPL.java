@@ -64,9 +64,7 @@ public class SimPL {
 					
 					SimpleNode v = (SimpleNode)astTree.jjtAccept(new InterpretVisitor(), null);
 					
-					SimPLDumper.dumpASTValue(v, System.out);
-					
-					System.out.println();
+					System.out.println(v.toString());
 
 				} catch (ParseException e) {
 					System.out.println(e.getMessage());
@@ -130,30 +128,29 @@ public class SimPL {
 			
 			SimpleNode v = (SimpleNode) astTree.jjtAccept(new InterpretVisitor(), null);
 			
-			SimPLDumper.dumpASTValue(v, System.out);
-			
-			
+			System.out.println(v.toString());
 
 		} catch (ParseException e) {
 			System.out.println(e.getMessage());
 			System.out.println("Encountered errors during parse.");
-		} catch (TypeException e)
-		{
-			System.out.println(e.getMessage());
-			System.out.println("Encountered errors during type checking.");
 		}
-		catch (InterpretException e)
-		{
-			System.out.println(e.getMessage());
-			System.out.println("Encountered errors during interpreting.");
-		} 
-		catch (Exception e)
-		{
-			System.out.println(e.getMessage());
-		} catch (Error e)
-		{
-			System.out.println(e.getMessage());
-		}
+//		catch (TypeException e)
+//		{
+//			System.out.println(e.getMessage());
+//			System.out.println("Encountered errors during type checking.");
+//		}
+//		catch (InterpretException e)
+//		{
+//			System.out.println(e.getMessage());
+//			System.out.println("Encountered errors during interpreting.");
+//		} 
+//		catch (Exception e)
+//		{
+//			System.out.println(e.getMessage());
+//		} catch (Error e)
+//		{
+//			System.out.println(e.getMessage());
+//		}
 		
 	}
 

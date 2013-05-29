@@ -67,5 +67,10 @@ public class EnvironmentStack {
 		envList.clear();
 		envList.add(new HashMap<String, SimpleNode>());
 	}
+	
+	public HashMap<String, SimpleNode> peek()
+	{
+		return envList.get(0);
+	}
 
 }

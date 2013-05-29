@@ -159,22 +159,32 @@ public class SimPLUnittest {
 		testSet.put("testcase/correctcases/if.spl", new Integer(4));
 		testSet.put("testcase/correctcases/let.spl", null);
 		testSet.put("testcase/correctcases/let3.spl", new Integer(15));
+		testSet.put("testcase/correctcases/length.spl", new Integer(3));
+		List<Integer> takeList = new LinkedList<Integer>();
+		takeList.add(234);
+		takeList.add(352);
+		testSet.put("testcase/correctcases/take.spl", takeList);
+		List<Integer> concatList = new LinkedList<Integer>();
+		concatList.add(1);
+		concatList.add(5);
+		concatList.add(10);
+		testSet.put("testcase/correctcases/concat.spl", concatList);
 		
-		LinkedList<Integer> listSimple = new LinkedList<Integer>();
-		listSimple.add(new Integer(4));
-		listSimple.add(new Integer(5));
-		testSet.put("testcase/correctcases/list.spl", listSimple);
+		LinkedList<Integer> list = new LinkedList<Integer>();
+		list.add(new Integer(4));
+		list.add(new Integer(5));
+		testSet.put("testcase/correctcases/list.spl", list);
 		testSet.put("testcase/correctcases/pair.spl", null);
 		testSet.put("testcase/correctcases/unary_operation.spl", new Boolean(false));
 		testSet.put("testcase/correctcases/fst.spl", new Integer(1));
 		testSet.put("testcase/correctcases/value.spl", new Integer(567));
-		LinkedList<Integer> listSimple2 = new LinkedList<Integer>();
-		listSimple2.add(new Integer(0));
-		listSimple2.add(new Integer(1));
-		listSimple2.add(new Integer(2));
-		listSimple2.add(new Integer(3));
-		listSimple2.add(new Integer(4));
-		testSet.put("testcase/correctcases/while.spl", listSimple2);
+		LinkedList<Integer> whilelist = new LinkedList<Integer>();
+		whilelist.add(new Integer(0));
+		whilelist.add(new Integer(1));
+		whilelist.add(new Integer(2));
+		whilelist.add(new Integer(3));
+		whilelist.add(new Integer(4));
+		testSet.put("testcase/correctcases/while.spl", whilelist);
 		int sum = testSet.size();
 		int passed = 0;
 
@@ -244,6 +254,6 @@ public class SimPLUnittest {
 	
 	public static void main(String args[]){
 		correctTestBatch();
-		wrongTestBatch();
+		//wrongTestBatch();
 	}
 }

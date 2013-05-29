@@ -1,0 +1,12 @@
+let
+  concat = fun l1 -> fun l2 -> if l1 = nil then 
+  l2 else ((head l1)::((concat (tail l1)) l2)) end
+in
+  let
+    reverse = fun l -> if l = nil then nil else 
+    ((concat (reverse (tail l))) ((head l)::nil)) end
+  in
+    (reverse (1::(2::nil)))
+  end
+end
+$

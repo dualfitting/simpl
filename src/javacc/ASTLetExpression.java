@@ -45,4 +45,22 @@ public class ASTLetExpression extends SimpleNode {
 			throws TypeException, InterpretException {
 		return visitor.visit(this, data);
 	}
+	
+	public String toString() {
+		return "let " + this.jjtGetChild(0).toString() + " = "
+				+ this.jjtGetChild(1).toString() + " in "
+				+ this.jjtGetChild(2).toString() + " end ";
+	}
+
+	public boolean equals(Object obj) {
+		if (!(obj instanceof ASTJoinNode)) {
+			return false;
+		}
+
+		ASTLetExpression otherNode = (ASTLetExpression) obj;
+
+		return this.jjtGetChild(0).equals(otherNode.jjtGetChild(0))
+				&& this.jjtGetChild(1).equals(otherNode.jjtGetChild(1))
+				&& this.jjtGetChild(2).equals(otherNode.jjtGetChild(2));
+	}
 }

@@ -6,26 +6,63 @@ import utils.InterpretException;
 import utils.TypeException;
 
 public class ASTSequenceExpression extends SimpleNode {
-  public ASTSequenceExpression(int id) {
-    super(id);
-  }
+	public ASTSequenceExpression(int id) {
+		super(id);
+	}
 
-  public ASTSequenceExpression(SimPLParser p, int id) {
-    super(p, id);
-  }
+	public ASTSequenceExpression(SimPLParser p, int id) {
+		super(p, id);
+	}
 
-  public static Node jjtCreate(int id) {
-      return new ASTSequenceExpression(id);
-  }
+	public static Node jjtCreate(int id) {
+		return new ASTSequenceExpression(id);
+	}
 
-  public static Node jjtCreate(SimPLParser p, int id) {
-      return new ASTSequenceExpression(p, id);
-  }
+	public static Node jjtCreate(SimPLParser p, int id) {
+		return new ASTSequenceExpression(p, id);
+	}
 
-  /** Accept the visitor. 
- * @throws TypeException 
- * @throws InterpretException **/
-  public Object jjtAccept(SimPLParserVisitor visitor, Object data) throws TypeException, InterpretException {
-    return visitor.visit(this, data);
-  }
+	/**
+	 * Accept the visitor.
+	 * 
+	 * @throws TypeException
+	 * @throws InterpretException
+	 **/
+	public Object jjtAccept(SimPLParserVisitor visitor, Object data)
+			throws TypeException, InterpretException {
+		return visitor.visit(this, data);
+	}
+
+	public String toString() {
+		int childNumber = this.jjtGetNumChildren();
+		String seqExp = "";
+		for (int i = 0; i < childNumber - 1; ++i) {
+			seqExp += this.jjtGetChild(i).toString() + ";";
+		}
+
+		seqExp += this.jjtGetChild(childNumber - 1).toString();
+		return seqExp;
+	}
+
+	public boolean equals(Object obj) {
+		if (!(obj instanceof ASTSequenceExpression)) {
+			return false;
+		}
+		ASTSequenceExpression otherNode = (ASTSequenceExpression) obj;
+		int childNumber = this.jjtGetNumChildren();
+		int otherChildNumber = otherNode.jjtGetNumChildren();
+		if (childNumber != otherChildNumber) {
+			return false;
+		}
+		boolean seqExp = true;
+		for (int i = 0; i < childNumber; ++i) {
+			seqExp = seqExp
+					&& this.jjtGetChild(i).equals(otherNode.jjtGetChild(i));
+			if (!seqExp) {
+				return seqExp;
+			}
+		}
+
+		return seqExp;
+	}
 }

@@ -6,26 +6,48 @@ import utils.InterpretException;
 import utils.TypeException;
 
 public class ASTIfThenElseExpression extends SimpleNode {
-  public ASTIfThenElseExpression(int id) {
-    super(id);
-  }
+	public ASTIfThenElseExpression(int id) {
+		super(id);
+	}
 
-  public ASTIfThenElseExpression(SimPLParser p, int id) {
-    super(p, id);
-  }
+	public ASTIfThenElseExpression(SimPLParser p, int id) {
+		super(p, id);
+	}
 
-  public static Node jjtCreate(int id) {
-      return new ASTIfThenElseExpression(id);
-  }
+	public static Node jjtCreate(int id) {
+		return new ASTIfThenElseExpression(id);
+	}
 
-  public static Node jjtCreate(SimPLParser p, int id) {
-      return new ASTIfThenElseExpression(p, id);
-  }
+	public static Node jjtCreate(SimPLParser p, int id) {
+		return new ASTIfThenElseExpression(p, id);
+	}
 
-  /** Accept the visitor. 
- * @throws TypeException 
- * @throws InterpretException **/
-  public Object jjtAccept(SimPLParserVisitor visitor, Object data) throws TypeException, InterpretException {
-    return visitor.visit(this, data);
-  }
+	/**
+	 * Accept the visitor.
+	 * 
+	 * @throws TypeException
+	 * @throws InterpretException
+	 **/
+	public Object jjtAccept(SimPLParserVisitor visitor, Object data)
+			throws TypeException, InterpretException {
+		return visitor.visit(this, data);
+	}
+
+	public String toString() {
+		return " if " + this.jjtGetChild(0).toString() + " then "
+				+ this.jjtGetChild(1).toString() + " else "
+				+ this.jjtGetChild(2).toString() + " end";
+	}
+
+	public boolean equals(Object obj) {
+		if (!(obj instanceof ASTIfThenElseExpression)) {
+			return false;
+		}
+
+		ASTIfThenElseExpression otherNode = (ASTIfThenElseExpression) obj;
+
+		return this.jjtGetChild(0).equals(otherNode.jjtGetChild(0))
+				&& this.jjtGetChild(1).equals(otherNode.jjtGetChild(1))
+				&& this.jjtGetChild(2).equals(otherNode.jjtGetChild(2));
+	}
 }

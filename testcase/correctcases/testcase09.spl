@@ -1,6 +1,6 @@
 let
     // hello
-    f = fun x -> (if x = 1 then 1 else x * (f (x - 1)) end)
+    f = fun x -> (if x = 1 then 1 else (f (x - 1)) * x end)
 in
     (f 4)
 end

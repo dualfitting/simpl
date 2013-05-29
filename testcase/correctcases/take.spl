@@ -1,0 +1,9 @@
+/**
+ * take first n element of the list
+ */
+let
+  take = fun n -> fun l -> if n = 0 then nil
+  else (head l)::((take (n - 1)) tail l) end
+in
+  ((take 2) (234::(352::(123::nil))))
+end
