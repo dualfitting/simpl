@@ -202,6 +202,7 @@ public class SimPLUnittest {
 		reverseList.add(new Integer(2));
 		reverseList.add(new Integer(1));
 		testSet.put("testcase/correctcases/reverse.spl", reverseList);
+		testSet.put("testcase/correctcases/nestcomment.spl", new Integer(2));
 		int sum = testSet.size();
 		int passed = 0;
 

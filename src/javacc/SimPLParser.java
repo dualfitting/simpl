@@ -1116,10 +1116,10 @@ public class SimPLParser/*@bgen(jjtree)*/implements SimPLParserTreeConstants, Si
       jj_la1_1();
    }
    private static void jj_la1_0() {
-      jj_la1_0 = new int[] {0x0,0xd2780800,0x40000,0x20000,0x10000,0x0,0x0,0x7000,0x7000,0x180,0x180,0x600,0x600,0xd2480800,0xd2480000,};
+      jj_la1_0 = new int[] {0x0,0x93c04000,0x200000,0x100000,0x80000,0x0,0x0,0x38000,0x38000,0xc00,0xc00,0x3000,0x3000,0x92404000,0x92400000,};
    }
    private static void jj_la1_1() {
-      jj_la1_1 = new int[] {0x22704,0x2a787,0x0,0x0,0x0,0x60,0x60,0x0,0x0,0x0,0x0,0x0,0x0,0x2a787,0x2a707,};
+      jj_la1_1 = new int[] {0x113820,0x153c3e,0x0,0x0,0x0,0x300,0x300,0x0,0x0,0x0,0x0,0x0,0x0,0x153c3e,0x15383e,};
    }
 
   public SimPLParser(java.io.InputStream stream) {
@@ -1227,8 +1227,8 @@ public class SimPLParser/*@bgen(jjtree)*/implements SimPLParserTreeConstants, Si
 
   public ParseException generateParseException() {
     jj_expentries.removeAllElements();
-    boolean[] la1tokens = new boolean[50];
-    for (int i = 0; i < 50; i++) {
+    boolean[] la1tokens = new boolean[53];
+    for (int i = 0; i < 53; i++) {
       la1tokens[i] = false;
     }
     if (jj_kind >= 0) {
@@ -1247,7 +1247,7 @@ public class SimPLParser/*@bgen(jjtree)*/implements SimPLParserTreeConstants, Si
         }
       }
     }
-    for (int i = 0; i < 50; i++) {
+    for (int i = 0; i < 53; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

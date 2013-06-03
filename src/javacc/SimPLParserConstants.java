@@ -4,62 +4,65 @@ package javacc;
 public interface SimPLParserConstants {
 
   int EOF = 0;
-  int SINGLE_LINE_COMMENT = 1;
-  int MULTI_LINE_COMMENT = 2;
-  int PLUS = 7;
-  int MINUS = 8;
-  int MULTIPLY = 9;
-  int DIVIDE = 10;
-  int NEGATIVE = 11;
-  int EQUAL = 12;
-  int LESSTHAN = 13;
-  int BIGGERTHAN = 14;
-  int ARROW = 15;
-  int JOIN = 16;
-  int ASSIGN = 17;
-  int SEMICOLON = 18;
-  int LPAREN = 19;
-  int RPAREN = 20;
-  int COMMA = 21;
-  int LET = 22;
-  int IN = 23;
-  int END = 24;
-  int IF = 25;
-  int THEN = 26;
-  int ELSE = 27;
-  int WHILE = 28;
-  int DO = 29;
-  int FIRST = 30;
-  int SECOND = 31;
-  int HEAD = 32;
-  int TAIL = 33;
-  int NIL = 34;
-  int INT = 35;
-  int BOOL = 36;
-  int AND = 37;
-  int OR = 38;
-  int NOT = 39;
-  int FUN = 40;
-  int TRUE = 41;
-  int FALSE = 42;
-  int LIST = 43;
-  int UNIT = 44;
-  int INTEGER = 45;
-  int DIGIT = 46;
-  int IDENTIFIER = 47;
-  int LETTER = 48;
-  int NOP = 49;
+  int SINGLE_LINE_COMMENT = 5;
+  int PLUS = 10;
+  int MINUS = 11;
+  int MULTIPLY = 12;
+  int DIVIDE = 13;
+  int NEGATIVE = 14;
+  int EQUAL = 15;
+  int LESSTHAN = 16;
+  int BIGGERTHAN = 17;
+  int ARROW = 18;
+  int JOIN = 19;
+  int ASSIGN = 20;
+  int SEMICOLON = 21;
+  int LPAREN = 22;
+  int RPAREN = 23;
+  int COMMA = 24;
+  int LET = 25;
+  int IN = 26;
+  int END = 27;
+  int IF = 28;
+  int THEN = 29;
+  int ELSE = 30;
+  int WHILE = 31;
+  int DO = 32;
+  int FIRST = 33;
+  int SECOND = 34;
+  int HEAD = 35;
+  int TAIL = 36;
+  int NIL = 37;
+  int INT = 38;
+  int BOOL = 39;
+  int AND = 40;
+  int OR = 41;
+  int NOT = 42;
+  int FUN = 43;
+  int TRUE = 44;
+  int FALSE = 45;
+  int LIST = 46;
+  int UNIT = 47;
+  int INTEGER = 48;
+  int DIGIT = 49;
+  int IDENTIFIER = 50;
+  int LETTER = 51;
+  int NOP = 52;
 
   int DEFAULT = 0;
+  int INSIDE_COMMENT = 1;
 
   String[] tokenImage = {
     "<EOF>",
-    "<SINGLE_LINE_COMMENT>",
-    "<MULTI_LINE_COMMENT>",
     "\" \"",
     "\"\\r\"",
     "\"\\t\"",
     "\"\\n\"",
+    "<SINGLE_LINE_COMMENT>",
+    "\"/*\"",
+    "\"/*\"",
+    "\"*/\"",
+    "<token of kind 9>",
     "\"+\"",
     "\"-\"",
     "\"*\"",
