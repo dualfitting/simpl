@@ -87,6 +87,8 @@ public class ASTAnonymousFunctionNode extends SimpleNode {
 		ASTAnonymousFunctionNode copy = new ASTAnonymousFunctionNode(0);
 		copy.setIdentifier(this.getIdentifier());
 		copy.setAnonymousFunction(this.getAnonymousFunction());
+		for(int i = 0; i < this.jjtGetNumChildren(); ++i)
+			copy.jjtAddChild(this.jjtGetChild(i), i);
 		if(this.getParentEnv() != null)
 		{
 			HashMap<String, SimpleNode> copiedEnv = new HashMap<String, SimpleNode>();

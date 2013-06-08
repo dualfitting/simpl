@@ -391,11 +391,12 @@ public class InterpretVisitor implements SimPLParserVisitor {
 
 		// Create new environment for interpret let expression
 		HashMap<String, SimpleNode> allocEnv = new HashMap<String, SimpleNode>();
+		allocEnv.put(((ASTVariable) varNode).getName(), valNode);
 
 		// prepare environment for interpret let expression e2
 		envStack.push(allocEnv);
 		// pass args
-		envStack.add(((ASTVariable) varNode).getName(), valNode);
+		//envStack.add();
 
 		
 		// interpret e2
@@ -741,7 +742,7 @@ public class InterpretVisitor implements SimPLParserVisitor {
 			throws TypeException, InterpretException {
 		node.jjtGetChild(0).jjtAccept(this, data);
 		SimpleNode firstNode = executeStack.pop();
-		ASTValue firstValue = null;
+		SimpleNode firstValue = null;
 		if (firstNode instanceof ASTVariable) {
 
 			String varName = ((ASTVariable) firstNode).getName();
@@ -756,14 +757,18 @@ public class InterpretVisitor implements SimPLParserVisitor {
 			}
 		} else if (firstNode instanceof ASTValue) {
 			firstValue = ((ASTValue) firstNode).deepCopy();
-		} else {
+		} else if (firstNode instanceof ASTAnonymousFunctionNode)
+		{
+			firstValue = ((ASTAnonymousFunctionNode) firstNode).deepCopy();
+		}else {
+			
 			throw new TypeException("First expression in equal-expression requires" +
 					" a value or identifier.");
 		}
 		node.jjtGetChild(1).jjtAccept(this, data);
 
 		SimpleNode secondNode = executeStack.pop();
-		ASTValue secondValue = null;
+		SimpleNode secondValue = null;
 		if (secondNode instanceof ASTVariable) {
 
 			String varName = ((ASTVariable) secondNode).getName();
@@ -778,14 +783,15 @@ public class InterpretVisitor implements SimPLParserVisitor {
 			}
 		} else if (secondNode instanceof ASTValue) {
 			secondValue = ((ASTValue) secondNode).deepCopy();
-		} else {
+		} 
+		else if (secondNode instanceof ASTAnonymousFunctionNode)
+		{
+			secondValue = ((ASTAnonymousFunctionNode) secondNode).deepCopy();
+		}else {
 			throw new TypeException("Second expression in equal-expression requires" +
 					" a value or identifier.");
 		}
 
-		if (firstValue.getType() != secondValue.getType()) {
-			throw new TypeException("Equal-expression requires the same types on two sides.");
-		}
 		boolean result = firstValue.equals(secondValue);
 
 		ASTValue newBoolValue = new ASTValue(0);

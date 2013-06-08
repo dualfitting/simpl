@@ -70,21 +70,22 @@ public class SimPL {
 				} catch (ParseException e) {
 					System.out.println(e.getMessage());
 					System.out.println("Encountered errors during parse.");
-				} catch (TypeException e)
-				{
-					System.out.println(e.getMessage());
-					System.out.println("Encountered errors during type checking.");
-				} catch (InterpretException e)
-				{
-					System.out.println(e.getMessage());
-					System.out.println("Encountered errors during interpreting.");
-				} catch (Exception e)
-				{
-					System.out.println(e.getMessage());
-				} catch (Error e)
-				{
-					System.out.println(e.getMessage());
-				}
+				} 
+//				catch (TypeException e)
+//				{
+//					System.out.println(e.getMessage());
+//					System.out.println("Encountered errors during type checking.");
+//				} catch (InterpretException e)
+//				{
+//					System.out.println(e.getMessage());
+//					System.out.println("Encountered errors during interpreting.");
+//				} catch (Exception e)
+//				{
+//					System.out.println(e.getMessage());
+//				} catch (Error e)
+//				{
+//					System.out.println(e.getMessage());
+//				}
 				
 			}while(true);
 			
